@@ -7,7 +7,7 @@ export function generateToken(user: UserModel) {
         "email": user.email,
         "firstName": user.firstName,
         "lastName": user.lastName,
-        "isAdmin": user.userRole
+        "userRole": user.userRole
     }, user.password);
 
     return token;
