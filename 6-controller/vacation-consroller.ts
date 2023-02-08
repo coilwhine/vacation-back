@@ -10,7 +10,7 @@ vacationRouter.get('/vacations', async (req: Request, res: Response, next: NextF
     res.send(resoult);
 })
 
-vacationRouter.post('/addvacations', async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.post('/addvacation', async (req: Request, res: Response, next: NextFunction) => {
     const vacation: VacationModel = {
         destination: req.body.destination,
         description: req.body.description,
