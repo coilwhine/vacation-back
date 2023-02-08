@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { decode } from "jsonwebtoken";
 import { VacationModel } from "../4-models/vacationModel";
-import { addVacation, getAllVacations, likeVacation, unlikeVacation, userLikedVacation, vacationLikes } from "../5-logic/vacation-logic";
+import { addVacation, deleteVacation, getAllVacations, likeVacation, unlikeVacation, userLikedVacation, vacationLikes } from "../5-logic/vacation-logic";
 
 export const vacationRouter = Router();
 
@@ -21,6 +21,13 @@ vacationRouter.post('/addvacation', async (req: Request, res: Response, next: Ne
     }
 
     const resoult = await addVacation(vacation);
+    res.send(resoult);
+})
+
+vacationRouter.delete('/deletevacation/:id', async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params.id;
+
+    const resoult = await deleteVacation(+id);
     res.send(resoult);
 })
 

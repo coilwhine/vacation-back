@@ -13,6 +13,12 @@ export async function addVacation(vacation: VacationModel) {
     return rows[0];
 }
 
+export async function deleteVacation(id: number) {
+    const query = `DELETE FROM vacations_db.vacations WHERE id = ?;`
+    const rows = await execute(query, [`${id}`]);
+    return rows[0];
+}
+
 export async function likeVacation(user: string, vacation: string) {
     const query = `INSERT INTO vacations_db.likes (user_id, vacation_id) VALUES (?, ?);`
 
