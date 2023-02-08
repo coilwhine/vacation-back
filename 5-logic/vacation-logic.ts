@@ -1,8 +1,15 @@
 import { execute } from "../2-utils/dal";
+import { VacationModel } from "../4-models/vacationModel";
 
 export async function getAllVacations() {
     const query = `SELECT * FROM vacations_db.vacations;`
     const rows = await execute(query);
+    return rows[0];
+}
+
+export async function addVacation(vacation: VacationModel) {
+    const query = `INSERT INTO vacations_db.vacations (destination, description, startDate, endDate, price, image) VALUES (?, ?, ?, ?, ?, ?);`
+    const rows = await execute(query, [`${vacation.destination}`, `${vacation.description}`, `${vacation.startDate}`, `${vacation.endDate}`, `${vacation.price}`, `${vacation.image}`]);
     return rows[0];
 }
 

@@ -1,11 +1,26 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { decode } from "jsonwebtoken";
-import { getAllVacations, likeVacation, unlikeVacation, userLikedVacation, vacationLikes } from "../5-logic/vacation-logic";
+import { VacationModel } from "../4-models/vacationModel";
+import { addVacation, getAllVacations, likeVacation, unlikeVacation, userLikedVacation, vacationLikes } from "../5-logic/vacation-logic";
 
 export const vacationRouter = Router();
 
 vacationRouter.get('/vacations', async (req: Request, res: Response, next: NextFunction) => {
     const resoult = await getAllVacations();
+    res.send(resoult);
+})
+
+vacationRouter.post('/addvacations', async (req: Request, res: Response, next: NextFunction) => {
+    const vacation: VacationModel = {
+        destination: req.body.destination,
+        description: req.body.description,
+        startDate: req.body.startDate,
+        endDate: req.body.endDate,
+        price: req.body.price,
+        image: req.body.image
+    }
+
+    const resoult = await addVacation(vacation);
     res.send(resoult);
 })
 
