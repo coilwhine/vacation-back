@@ -10,7 +10,7 @@ export async function getAllVacations() {
 export async function addVacation(vacation: VacationModel) {
     const query = `INSERT INTO vacations_db.vacations (destination, description, startDate, endDate, price, image) VALUES (?, ?, ?, ?, ?, ?);`
     const rows = await execute(query, [`${vacation.destination}`, `${vacation.description}`, `${vacation.startDate}`, `${vacation.endDate}`, `${vacation.price}`, `${vacation.image}`]);
-    return rows[0];
+    return rows[0]; // לבדוק איך אני צריך להפריד בין השם לתמונה
 }
 
 export async function deleteVacation(id: number) {

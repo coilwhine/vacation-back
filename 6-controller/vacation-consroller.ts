@@ -11,16 +11,8 @@ vacationRouter.get('/vacations', async (req: Request, res: Response, next: NextF
 })
 
 vacationRouter.post('/addvacation', async (req: Request, res: Response, next: NextFunction) => {
-    const vacation: VacationModel = {
-        destination: req.body.destination,
-        description: req.body.description,
-        startDate: req.body.startDate,
-        endDate: req.body.endDate,
-        price: req.body.price,
-        image: req.body.image
-    }
-
-    const resoult = await addVacation(vacation);
+    console.log(req.body)
+    const resoult = await addVacation(req.body);
     res.send(resoult);
 })
 
