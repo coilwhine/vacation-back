@@ -1,22 +1,32 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { decode } from "jsonwebtoken";
-import { VacationModel } from "../4-models/vacationModel";
-import { addVacation, deleteVacation, getAllVacations, likeVacation, unlikeVacation, userLikedVacation, vacationLikes } from "../5-logic/vacation-logic";
+import { addVacation, deleteVacation, getAllVacations, getVacationsByPage, likeVacation, unlikeVacation, userLikedVacation, vacationLikes } from "../5-logic/vacation-logic";
 
 export const vacationRouter = Router();
 
-vacationRouter.get('/vacations', async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
     const resoult = await getAllVacations();
     res.send(resoult);
 })
 
-vacationRouter.post('/addvacation', async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.get('/page', async (req: Request, res: Response, next: NextFunction) => {
+    const page = +req.query.page;
+    const liked = req.query.liked === 'true';
+    const present = req.query.present === 'true';
+    const future = req.query.future === 'true';
+    const userId = req.headers.userid
+
+    const resoult = await getVacationsByPage(+userId, page, liked, present, future);
+    res.send(resoult);
+})
+
+vacationRouter.post('/', async (req: Request, res: Response, next: NextFunction) => {
     console.log(req.body)
     const resoult = await addVacation(req.body);
     res.send(resoult);
 })
 
-vacationRouter.delete('/deletevacation/:id', async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
 
     const resoult = await deleteVacation(+id);
@@ -63,11 +73,11 @@ vacationRouter.get('/userliked', async (req: Request, res: Response, next: NextF
 
 })
 
-vacationRouter.post('/vacationlikes', async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.get('/vacationlikes', async (req: Request, res: Response, next: NextFunction) => {
 
-    const vicationId = req.body.id
+    const vicationId = req.query.id
 
-    const resoult = await vacationLikes(vicationId)
+    const resoult = await vacationLikes(+vicationId)
     res.send(resoult)
 
 })

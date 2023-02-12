@@ -14,7 +14,7 @@ server.use(fileUpload({
     limits: { fileSize: 50 * 1024 * 1024 },
 }));
 server.use('/auth', authRouter);
-server.use('/vacation', vacationRouter);
+server.use('/vacations', vacationRouter);
 
 
 
