@@ -17,7 +17,6 @@ server.use('/auth', authRouter);
 server.use('/vacations', vacationRouter);
 
 
-
 server.listen(process.env.PORT, () => {
     console.log(`Listening on port ${process.env.PORT}`);
 });

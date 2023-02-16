@@ -9,16 +9,22 @@ export function tokenAuthenticate(userRoles: UserRole[]) {
         if (!authHeader) return res.status(401).send({ error: 'No token provided.' });
 
         try {
-            const token = authHeader.substring(7);
+            const token = authHeader;
             const { sub } = decode(token)
+
             const { password, userRole } = await getUserById(+sub);
-            if (userRoles.includes(userRole) || !userRoles) {
+
+            if (userRoles.includes(userRole)) {
                 verify(token, password);
+                console.log('good')
             } else {
+                console.log('bad')
                 throw new Error("bad role");
             }
+
         } catch (error) {
             res.status(400).send(error.message);
+            return
         }
         next();
     };

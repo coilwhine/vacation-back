@@ -1,15 +1,17 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { decode } from "jsonwebtoken";
-import { addVacation, deleteVacation, getAllVacations, getVacationsByPage, likeVacation, unlikeVacation, userLikedVacation, vacationLikes } from "../5-logic/vacation-logic";
+import { tokenAuthenticate } from "../3-middleware/tokenAuthenticate";
+import { UserRole } from "../4-models/userModel";
+import { addVacation, createFile, deleteVacation, getAllVacations, getVacationsAndLikes, getVacationsByPage, likeVacation, unlikeVacation, userLikedVacation, vacationLikes } from "../5-logic/vacation-logic";
 
 export const vacationRouter = Router();
 
-vacationRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.get('/', tokenAuthenticate([1]), async (req: Request, res: Response, next: NextFunction) => {
     const resoult = await getAllVacations();
     res.send(resoult);
 })
 
-vacationRouter.get('/page', async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.get('/page', tokenAuthenticate([0, 1]), async (req: Request, res: Response, next: NextFunction) => {
     const page = +req.query.page;
     const liked = req.query.liked === 'true';
     const present = req.query.present === 'true';
@@ -20,20 +22,26 @@ vacationRouter.get('/page', async (req: Request, res: Response, next: NextFuncti
     res.send(resoult);
 })
 
-vacationRouter.post('/', async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.get('/reports', tokenAuthenticate([1]), async (req: Request, res: Response, next: NextFunction) => {
+    console.log('test')
+    const resoult = await getVacationsAndLikes();
+    res.send(resoult);
+})
+
+vacationRouter.post('/', tokenAuthenticate([1]), async (req: Request, res: Response, next: NextFunction) => {
     console.log(req.body)
     const resoult = await addVacation(req.body);
     res.send(resoult);
 })
 
-vacationRouter.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.delete('/:id', tokenAuthenticate([1]), async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
 
     const resoult = await deleteVacation(+id);
     res.send(resoult);
 })
 
-vacationRouter.post('/like', async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.post('/like', tokenAuthenticate([0, 1]), async (req: Request, res: Response, next: NextFunction) => {
 
     const authToken: any = req.headers.authentication
     const decodeToken = decode(authToken)
@@ -47,7 +55,7 @@ vacationRouter.post('/like', async (req: Request, res: Response, next: NextFunct
 
 })
 
-vacationRouter.post('/unlike', async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.post('/unlike', tokenAuthenticate([0, 1]), async (req: Request, res: Response, next: NextFunction) => {
 
     const authToken: any = req.headers.authentication
     const decodeToken = decode(authToken)
@@ -61,7 +69,7 @@ vacationRouter.post('/unlike', async (req: Request, res: Response, next: NextFun
 
 })
 
-vacationRouter.get('/userliked', async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.get('/userliked', tokenAuthenticate([0, 1]), async (req: Request, res: Response, next: NextFunction) => {
 
     const authToken: any = req.headers.authentication
     const decodeToken = decode(authToken)
@@ -73,11 +81,18 @@ vacationRouter.get('/userliked', async (req: Request, res: Response, next: NextF
 
 })
 
-vacationRouter.get('/vacationlikes', async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.get('/vacationlikes', tokenAuthenticate([0, 1]), async (req: Request, res: Response, next: NextFunction) => {
 
     const vicationId = req.query.id
 
     const resoult = await vacationLikes(+vicationId)
     res.send(resoult)
 
+})
+
+vacationRouter.get('/download', tokenAuthenticate([1]), async (req: Request, res: Response, next: NextFunction) => {
+    const data = await getVacationsAndLikes();
+    await createFile(data)
+
+    res.download("dataFile.csv");
 })

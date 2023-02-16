@@ -1,5 +1,6 @@
 import { execute } from "../2-utils/dal";
 import { VacationModel } from "../4-models/vacationModel";
+import fs from 'fs/promises';
 
 export async function getAllVacations() {
     const query = `SELECT * FROM vacations_db.vacations;`
@@ -94,6 +95,19 @@ export async function getVacationsByPage(userId: number, page: number, liked: bo
     }
 }
 
+export async function getVacationsAndLikes() {
+    const query = `SELECT vacations_db.vacations.*,
+    COUNT(vacations_db.likes.user_id) as "like"
+    FROM vacations_db.vacations
+    LEFT JOIN vacations_db.likes ON vacations_db.likes.vacation_id = vacations_db.vacations.id
+    WHERE vacations_db.likes.vacation_id = vacation_id
+    GROUP BY vacations_db.likes.vacation_id;`
+
+    const rows = await execute(query);
+
+    return rows[0]
+}
+
 export async function addVacation(vacation: VacationModel) {
     const query = `INSERT INTO vacations_db.vacations (destination, description, startDate, endDate, price, image) VALUES (?, ?, ?, ?, ?, ?);`
     const rows = await execute(query, [`${vacation.destination}`, `${vacation.description}`, `${vacation.startDate}`, `${vacation.endDate}`, `${vacation.price}`, `${vacation.image}`]);
@@ -132,4 +146,15 @@ export async function vacationLikes(id: number) {
 
     const rows = await execute(query, [`${id}`]);
     return rows[0];
+}
+
+export async function createFile(data: any) {
+
+    const fileName = 'dataFile.csv'
+
+    await fs.writeFile(fileName, '');
+    await fs.writeFile(fileName, 'destination,likes\n');
+    for (let item of data) {
+        await fs.appendFile(fileName, `${item.destination}, ${item.like}\n`)
+    }
 }
