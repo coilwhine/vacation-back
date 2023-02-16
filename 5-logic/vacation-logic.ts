@@ -8,18 +8,6 @@ export async function getAllVacations() {
     return rows[0];
 }
 
-export async function getVacationsCount(liked: boolean, present: boolean, future: boolean) {
-
-    // const query = `SELECT *
-    // FROM vacations_db.vacations
-    // ORDER BY startDate
-    // LIMIT 10
-    // OFFSET ?;`
-
-    // const rows = await execute(query, [offset.toString()]);
-    // return rows[0];
-}
-
 export async function getVacationsByPage(userId: number, page: number, liked: boolean, present: boolean, future: boolean) {
 
     const offset = (page - 1) * 10;
@@ -110,7 +98,33 @@ export async function getVacationsAndLikes() {
 
 export async function addVacation(vacation: VacationModel) {
     const query = `INSERT INTO vacations_db.vacations (destination, description, startDate, endDate, price, image) VALUES (?, ?, ?, ?, ?, ?);`
-    const rows = await execute(query, [`${vacation.destination}`, `${vacation.description}`, `${vacation.startDate}`, `${vacation.endDate}`, `${vacation.price}`, `${vacation.image}`]);
+    const rows = await execute(query,
+        [`${vacation.destination}`,
+        `${vacation.description}`,
+        `${vacation.startDate}`,
+        `${vacation.endDate}`,
+        `${vacation.price}`,
+        `${vacation.image}`]);
+    return rows[0]; // לבדוק איך אני צריך להפריד בין השם לתמונה
+}
+
+export async function editVacation(vacation: VacationModel) {
+    const query = `UPDATE vacations_db.vacations
+    SET destination = ?,
+    description = ?,
+    startDate = ?,
+    endDate = ?,
+    price = ?,
+    image = ? 
+    WHERE id = ?;`
+    const rows = await execute(query,
+        [`${vacation.destination}`,
+        `${vacation.description}`,
+        `${vacation.startDate}`,
+        `${vacation.endDate}`,
+        `${vacation.price}`,
+        `${vacation.image}`,
+        `${vacation.id}`]);
     return rows[0]; // לבדוק איך אני צריך להפריד בין השם לתמונה
 }
 

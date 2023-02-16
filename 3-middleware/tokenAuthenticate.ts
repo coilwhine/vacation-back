@@ -16,9 +16,7 @@ export function tokenAuthenticate(userRoles: UserRole[]) {
 
             if (userRoles.includes(userRole)) {
                 verify(token, password);
-                console.log('good')
             } else {
-                console.log('bad')
                 throw new Error("bad role");
             }
 
