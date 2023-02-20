@@ -2,9 +2,9 @@ import { s3bucket } from "../2-utils/aws_dal";
 
 export async function saveImagesToS3(file: any, imageId: string) {
     try {
-        const type = file.name.split('.')[1];
+        const type = file.image.name.split('.')[1];
         const params = {
-            Body: file.data,
+            Body: file.image.data,
             Key: `${imageId}.${type}`,
             Bucket: 'daniel-vacation'
         }
@@ -20,7 +20,7 @@ export async function deleteImageFromS3(imageId: string) {
     try {
         const results = await s3bucket.deleteObject(params).promise();
         return results
-    } catch (e) {
-        console.log(e);
+    } catch (err) {
+        console.log(err);
     }
 }

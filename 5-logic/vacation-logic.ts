@@ -1,6 +1,7 @@
 import { execute } from "../2-utils/dal";
 import { VacationModel } from "../4-models/vacationModel";
 import fs from 'fs/promises';
+import uniqid from 'uniqid';
 
 export async function getAllVacations() {
     const query = `SELECT * FROM vacations_db.vacations;`
@@ -96,7 +97,10 @@ export async function getVacationsAndLikes() {
     return rows[0]
 }
 
-export async function addVacation(vacation: VacationModel) {
+export async function addVacation(vacation: VacationModel, files: any) {
+
+    const imageId = uniqid()
+
     const query = `INSERT INTO vacations_db.vacations (destination, description, startDate, endDate, price, image) VALUES (?, ?, ?, ?, ?, ?);`
     const rows = await execute(query,
         [`${vacation.destination}`,
@@ -104,11 +108,11 @@ export async function addVacation(vacation: VacationModel) {
         `${vacation.startDate}`,
         `${vacation.endDate}`,
         `${vacation.price}`,
-        `${vacation.image}`]);
+        `${files.image.name}`]);
     return rows[0]; // לבדוק איך אני צריך להפריד בין השם לתמונה
 }
 
-export async function editVacation(vacation: VacationModel) {
+export async function editVacation(vacation: VacationModel, files: any) {
     const query = `UPDATE vacations_db.vacations
     SET destination = ?,
     description = ?,
@@ -123,8 +127,9 @@ export async function editVacation(vacation: VacationModel) {
         `${vacation.startDate}`,
         `${vacation.endDate}`,
         `${vacation.price}`,
-        `${vacation.image}`,
+        `${files.image.name}`,
         `${vacation.id}`]);
+
     return rows[0]; // לבדוק איך אני צריך להפריד בין השם לתמונה
 }
 
@@ -166,9 +171,9 @@ export async function createFile(data: any) {
 
     const fileName = 'dataFile.csv'
 
-    await fs.writeFile(fileName, '');
-    await fs.writeFile(fileName, 'destination,likes\n');
-    for (let item of data) {
+    await fs.writeFile(fileName, ''); //delete all file content
+    await fs.writeFile(fileName, 'destination,likes\n'); // add headers
+    for (let item of data) { // add content loop
         await fs.appendFile(fileName, `${item.destination}, ${item.like}\n`)
     }
 }

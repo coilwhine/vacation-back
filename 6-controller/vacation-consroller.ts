@@ -28,12 +28,12 @@ vacationRouter.get('/reports', tokenAuthenticate([1]), async (req: Request, res:
 })
 
 vacationRouter.post('/', tokenAuthenticate([1]), async (req: Request, res: Response, next: NextFunction) => {
-    const resoult = await addVacation(req.body);
+    const resoult = await addVacation(req.body, req.files);
     res.send(resoult);
 })
 
 vacationRouter.put('/', tokenAuthenticate([1]), async (req: Request, res: Response, next: NextFunction) => {
-    const resoult = await editVacation(req.body);
+    const resoult = await editVacation(req.body, req.files);
     res.send(resoult);
 })
 
