@@ -2,10 +2,18 @@ import { execute } from "../2-utils/dal";
 import { VacationModel } from "../4-models/vacationModel";
 import fs from 'fs/promises';
 import uniqid from 'uniqid';
+import { saveImagesToS3 } from "./aws-logic";
+import { UploadedFile } from "express-fileupload";
 
 export async function getAllVacations() {
     const query = `SELECT * FROM vacations_db.vacations;`
     const rows = await execute(query);
+    return rows[0];
+}
+
+export async function getVacationById(userId: number) {
+    const query = `SELECT * FROM vacations_db.vacations WHERE id = ?;`
+    const rows = await execute(query, [userId]);
     return rows[0];
 }
 
@@ -97,9 +105,10 @@ export async function getVacationsAndLikes() {
     return rows[0]
 }
 
-export async function addVacation(vacation: VacationModel, files: any) {
+export async function addVacation(vacation: VacationModel, files: UploadedFile | any) {
 
-    const imageId = uniqid()
+    const imageId = uniqid();
+    const key = await saveImagesToS3(files.image, imageId);
 
     const query = `INSERT INTO vacations_db.vacations (destination, description, startDate, endDate, price, image) VALUES (?, ?, ?, ?, ?, ?);`
     const rows = await execute(query,
@@ -108,34 +117,59 @@ export async function addVacation(vacation: VacationModel, files: any) {
         `${vacation.startDate}`,
         `${vacation.endDate}`,
         `${vacation.price}`,
-        `${files.image.name}`]);
-    return rows[0]; // לבדוק איך אני צריך להפריד בין השם לתמונה
+        `${key}`]);
+    return rows[0];
 }
 
-export async function editVacation(vacation: VacationModel, files: any) {
-    const query = `UPDATE vacations_db.vacations
-    SET destination = ?,
-    description = ?,
-    startDate = ?,
-    endDate = ?,
-    price = ?,
-    image = ? 
-    WHERE id = ?;`
-    const rows = await execute(query,
-        [`${vacation.destination}`,
-        `${vacation.description}`,
-        `${vacation.startDate}`,
-        `${vacation.endDate}`,
-        `${vacation.price}`,
-        `${files.image.name}`,
-        `${vacation.id}`]);
+export async function editVacation(vacation: VacationModel, files: UploadedFile | any) {
 
-    return rows[0]; // לבדוק איך אני צריך להפריד בין השם לתמונה
+    let rows: any = '';
+    let query: string = '';
+
+    if (files) {
+        const imageId = uniqid();
+        const key = await saveImagesToS3(files.image, imageId);
+
+        query = `UPDATE vacations_db.vacations
+            SET destination = ?,
+            description = ?,
+            startDate = ?,
+            endDate = ?,
+            price = ?,
+            image = ? 
+            WHERE id = ?;`
+        rows = await execute(query,
+            [`${vacation.destination}`,
+            `${vacation.description}`,
+            `${vacation.startDate}`,
+            `${vacation.endDate}`,
+            `${vacation.price}`,
+            `${key}`,
+            `${vacation.id}`]);
+    } else {
+        query = `UPDATE vacations_db.vacations
+            SET destination = ?,
+            description = ?,
+            startDate = ?,
+            endDate = ?,
+            price = ?
+            WHERE id = ?;`
+        rows = await execute(query,
+            [`${vacation.destination}`,
+            `${vacation.description}`,
+            `${vacation.startDate}`,
+            `${vacation.endDate}`,
+            `${vacation.price}`,
+            `${vacation.id}`]);
+    }
+
+    return rows[0];
 }
 
 export async function deleteVacation(id: number) {
     const query = `DELETE FROM vacations_db.vacations WHERE id = ?;`
     const rows = await execute(query, [`${id}`]);
+
     return rows[0];
 }
 

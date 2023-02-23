@@ -2,9 +2,9 @@ import { s3bucket } from "../2-utils/aws_dal";
 
 export async function saveImagesToS3(file: any, imageId: string) {
     try {
-        const type = file.image.name.split('.')[1];
+        const type = file.name.split('.')[1];
         const params = {
-            Body: file.image.data,
+            Body: file.data,
             Key: `${imageId}.${type}`,
             Bucket: 'daniel-vacation'
         }

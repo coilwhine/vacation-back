@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { decode } from "jsonwebtoken";
 import { tokenAuthenticate } from "../3-middleware/tokenAuthenticate";
-import { UserRole } from "../4-models/userModel";
-import { addVacation, createFile, deleteVacation, editVacation, getAllVacations, getVacationsAndLikes, getVacationsByPage, likeVacation, unlikeVacation, userLikedVacation, vacationLikes } from "../5-logic/vacation-logic";
+import { VacationModel } from "../4-models/vacationModel";
+import { deleteImageFromS3 } from "../5-logic/aws-logic";
+import { addVacation, createFile, deleteVacation, editVacation, getAllVacations, getVacationById, getVacationsAndLikes, getVacationsByPage, likeVacation, unlikeVacation, userLikedVacation, vacationLikes } from "../5-logic/vacation-logic";
 
 export const vacationRouter = Router();
 
@@ -32,13 +33,21 @@ vacationRouter.post('/', tokenAuthenticate([1]), async (req: Request, res: Respo
     res.send(resoult);
 })
 
-vacationRouter.put('/', tokenAuthenticate([1]), async (req: Request, res: Response, next: NextFunction) => {
+vacationRouter.put('/:id', tokenAuthenticate([1]), async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params.id;
+
+    const [vacation] = await getVacationById(+id);
+    deleteImageFromS3(vacation.image);
+
     const resoult = await editVacation(req.body, req.files);
     res.send(resoult);
 })
 
 vacationRouter.delete('/:id', tokenAuthenticate([1]), async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
+
+    const [vacation] = await getVacationById(+id);
+    deleteImageFromS3(vacation.image);
 
     const resoult = await deleteVacation(+id);
     res.send(resoult);
