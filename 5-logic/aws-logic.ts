@@ -21,6 +21,6 @@ export async function deleteImageFromS3(imageId: string) {
         const results = await s3bucket.deleteObject(params).promise();
         return results
     } catch (err) {
-        console.log(err);
+        console.error(err);
     }
 }

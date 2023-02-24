@@ -10,8 +10,5 @@ export function generateToken(user: UserModel) {
         "userRole": user.userRole
     }, user.password);
 
-    console.log(user.password)
-    console.log(token)
-
     return token;
 }
