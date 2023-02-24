@@ -10,9 +10,11 @@ const server = express();
 
 server.use(cors({ origin: 'http://localhost:3000' }))
 server.use(json());
+
 server.use(fileUpload({
     limits: { fileSize: 50 * 1024 * 1024 },
 }));
+
 server.use('/auth', authRouter);
 server.use('/vacations', vacationRouter);
 
