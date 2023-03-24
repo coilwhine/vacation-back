@@ -205,9 +205,9 @@ export async function createFile(data: any) {
 
     const fileName = 'dataFile.csv'
 
-    await fs.writeFile(fileName, ''); //delete all file content
-    await fs.writeFile(fileName, 'destination,likes\n'); // add headers
-    for (let item of data) { // add content loop
+    await fs.writeFile(fileName, '');
+    await fs.writeFile(fileName, 'destination,likes\n');
+    for (let item of data) {
         await fs.appendFile(fileName, `${item.destination}, ${item.like}\n`)
     }
 }

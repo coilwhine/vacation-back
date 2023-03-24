@@ -2,6 +2,7 @@ import { OkPacket } from "mysql2";
 import { generateToken } from "../2-utils/auth";
 import { execute } from "../2-utils/dal";
 import { UserModel, UserRole } from "../4-models/userModel";
+import crypto from 'crypto';
 
 export async function getAllUsers() {
     const query = `SELECT * FROM vacations_db.users;`
@@ -23,14 +24,17 @@ export async function getUserByEmail(email: string): Promise<UserModel> {
 }
 
 export async function createNewUser(user: UserModel) {
+
+    const hash = crypto.createHash('sha256').update(user.password).digest('base64')
+
     const query = `INSERT INTO Users(email, password, firstName, lastName) VALUES(?,?,?,?)`;
-    const [result] = await execute<OkPacket>(query, [`${user.email}`, `${user.password}`, `${user.firstName}`, `${user.lastName}`]);
+    const [result] = await execute<OkPacket>(query, [`${user.email}`, `${hash}`, `${user.firstName}`, `${user.lastName}`]);
     const id = result.insertId;
 
     const formatedUser = {
         id: id,
         email: user.email,
-        password: user.password,
+        password: hash,
         firstName: user.firstName,
         lastName: user.lastName,
         userRole: UserRole.user

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { generateToken } from "../2-utils/auth";
 import { createNewUser, getAllUsers, getUserByEmail, getUserById } from "../5-logic/auth-logic";
+import crypto from 'crypto';
 
 export const authRouter = Router();
 
@@ -17,10 +18,11 @@ authRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) =
 
 authRouter.post('/login', async (req: Request, res: Response, next: NextFunction) => {
     const user = await getUserByEmail(req.body.email);
+    const hash = crypto.createHash('sha256').update(req.body.password).digest('base64')
 
     if (!user) {
         res.status(404).send('This email does not exist');
-    } else if (user.password !== req.body.password) {
+    } else if (user.password !== hash) {
         res.status(401).send('Incorrect password');
     } else {
         const token = generateToken(user)
